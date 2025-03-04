@@ -1,25 +1,7 @@
 import torch
 import torch.nn as nn
-from mambapy.vim import VMamba,MambaConfig
+from SVRNN_module import ST-ViM
 
-
-# VM Simplified implementation
-def VMamaba(d_model):
-    config = MambaConfig(d_model=d_model, n_layers=1)
-    return VMamba(config)
-
-class VimBlock(nn.Module):
-    def __init__(self, hidden_dims):
-        super().__init__()
-        self.layer = VMamaba(d_model=hidden_dims)
-
-    def forward(self, x):
-        B, _, H, W = x.shape
-        x = x.flatten(2).transpose(1, 2)
-        x = self.layer(x)
-        xt = x.transpose(1, 2)
-        xt = xt.reshape(B, -1, H, W)
-        return xt
 
 class SVLSTMCell(nn.Module):
     def __init__(self, in_channel, num_hidden, height, width, filter_size, stride, layer_norm):
@@ -32,40 +14,40 @@ class SVLSTMCell(nn.Module):
         if layer_norm:
             self.conv_x = nn.Sequential(
                 nn.Conv2d(in_channel, num_hidden * 7, kernel_size=filter_size, stride=stride, padding=self.padding, bias=False),
-                VimBlock(num_hidden * 7),
+                 ST-ViM(num_hidden * 7),
                 nn.LayerNorm([num_hidden * 7, height, width])
             )
             self.conv_h = nn.Sequential(
                 nn.Conv2d(num_hidden, num_hidden * 4, kernel_size=filter_size,stride=stride, padding=self.padding, bias=False),
-                # VimBlock(num_hidden * 4),
+                #  ST-ViM(num_hidden * 4),
                 nn.LayerNorm([num_hidden * 4, height, width])
             )
             self.conv_m = nn.Sequential(
                 nn.Conv2d(num_hidden, num_hidden * 3, kernel_size=filter_size, stride=stride, padding=self.padding, bias=False),
-                # VimBlock(num_hidden * 3),
+                #  ST-ViM(num_hidden * 3),
                 nn.LayerNorm([num_hidden * 3, height, width])
             )
             self.conv_o = nn.Sequential(
                 nn.Conv2d(num_hidden * 2, num_hidden, kernel_size=filter_size, stride=stride, padding=self.padding, bias=False),
-                # VimBlock(num_hidden ),
+                #  ST-ViM(num_hidden ),
                 nn.LayerNorm([num_hidden, height, width])
             )
         else:
             self.conv_x = nn.Sequential(
                 nn.Conv2d(in_channel, num_hidden * 7, kernel_size=filter_size, stride=stride, padding=self.padding, bias=False),
-                VimBlock(num_hidden * 7)
+                 ST-ViM(num_hidden * 7)
             )
             self.conv_h = nn.Sequential(
                 nn.Conv2d(num_hidden, num_hidden * 4, kernel_size=filter_size,stride=stride, padding=self.padding, bias=False),
-                # VimBlock(num_hidden * 4)
+                #  ST-ViM(num_hidden * 4)
             )
             self.conv_m = nn.Sequential(
                 nn.Conv2d(num_hidden, num_hidden * 3, kernel_size=filter_size, stride=stride, padding=self.padding, bias=False),
-                VimBlock(num_hidden * 3)
+                 #  ST-ViM(num_hidden * 3)
             )
             self.conv_o = nn.Sequential(
                 nn.Conv2d(num_hidden * 2, num_hidden, kernel_size=filter_size, stride=stride, padding=self.padding, bias=False),
-                # VimBlock(num_hidden),
+                # ST-ViM(num_hidden),
             )
         self.conv_last = nn.Conv2d(num_hidden * 2, num_hidden, kernel_size=1, stride=1, padding=0, bias=False)
 
